@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CODAME | Competitive Programming Club</title>
+    <meta name="description" content="Official website of CODAME, the premiere Competitive Programming Club.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="preloader">
+        <svg class="loading-logo" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision"
+            text-rendering="geometricPrecision">
+            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+                class="logo-text base-text">CODAME</text>
+            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+                class="logo-text highlight-text">CODAME</text>
+        </svg>
+    </div>
+
+    <!-- Cinematic Grain Overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- Optimized Flashlight Pointer (Added via JS, but styling here) -->
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand-container">
+            <img src="logo-white.png" alt="CODAME" class="nav-logo-img">
+            <span class="nav-logo-text">CODAME</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="javascript:void(0)" data-scroll="events">Events</a></li>
+            <li><a href="javascript:void(0)" data-scroll="competitions">Competitions</a></li>
+            <li><a href="javascript:void(0)" data-scroll="members">Members</a></li>
+            <li><a href="javascript:void(0)" data-scroll="resources">Resources</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="#" class="btn-primary magnetic-btn">Join Club</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-bg-parallax" id="hero-bg">
+            <!-- Background Image or Gradient -->
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="reveal-text">Forging</span>
+                <span class="reveal-text">Algorithmic</span>
+                <span class="reveal-text">Excellence</span>
+            </h1>
+            <p class="hero-subtitle reveal-opacity">The Competitive Programming Club of IIIT Bhopal.</p>
+            <div class="hero-actions reveal-opacity">
+                <a href="javascript:void(0)" data-scroll="events" class="btn-hero magnetic-btn">Explore Events</a>
+            </div>
+        </div>
+        <!-- 3D Logo Layer (SVG for Perfect Geometry & Masking) -->
+        <svg class="hero-logo-layer" id="hero-logo-svg" xmlns="http://www.w3.org/2000/svg"
+            shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+            <defs>
+                <mask id="flashlight-mask">
+                    <rect width="100%" height="100%" fill="black" />
+                    <circle id="mask-circle" cx="50%" cy="50%" r="300" fill="white" filter="url(#blur-filter)" />
+                </mask>
+                <filter id="blur-filter">
+                    <feGaussianBlur stdDeviation="120" />
+                </filter>
+            </defs>
+
+            <!-- Base Layer: Dim Grey Outline -->
+            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+                class="logo-text base-text">CODAME</text>
+
+            <!-- Highlight Layer: Bright White, Masked -->
+            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="logo-text highlight-text"
+                mask="url(#flashlight-mask)">CODAME</text>
+        </svg>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Events Section -->
+        <section id="events" class="section-container">
+            <div class="section-header">
+                <h2>Events</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="events-grid" id="events-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- Competitions Section -->
+        <section id="competitions" class="section-container">
+            <div class="section-header">
+                <h2>Live Competitions</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="competitions-list" id="competitions-list">
+                <!-- Javascript Injected -->
+            </div>
+        </section>
+
+        <!-- Members Section -->
+        <section id="members" class="section-container">
+            <div class="section-header">
+                <h2>Our Team</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="members-grid" id="members-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="section-container">
+            <div class="section-header">
+                <h2>Resources</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="resources-list">
+                <a href="https://takeuforward.org/interviews/strivers-sde-sheet-top-coding-interview-problems/"
+                    target="_blank" class="resource-item fade-in-section">
+                    <span class="res-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span class="res-title">Striver's SDE Sheet</span>
+                    <span class="res-arrow">→</span>
+                </a>
+                <a href="https://cses.fi/problemset/" target="_blank" class="resource-item fade-in-section">
+                    <span class="res-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                    </span>
+                    <span class="res-title">CSES Problem Set</span>
+                    <span class="res-arrow">→</span>
+                </a>
+                <a href="https://cp-algorithms.com/" target="_blank" class="resource-item fade-in-section">
+                    <span class="res-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </span>
+                    <span class="res-title">CP-Algorithms</span>
+                    <span class="res-arrow">→</span>
+                </a>
+                <a href="https://codeforces.com/problemset?order=BY_RATING_ASC" target="_blank"
+                    class="resource-item fade-in-section">
+                    <span class="res-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </span>
+                    <span class="res-title">Codeforces Archive</span>
+                    <span class="res-arrow">→</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">CODAME</div>
+            <p>&copy; 2025 Codame Club. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>
