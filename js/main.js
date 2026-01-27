@@ -203,6 +203,12 @@ async function renderCompetitions() {
             if (c.site.toLowerCase().includes('codechef')) siteClass = 'codechef';
             else if (c.site.toLowerCase().includes('leetcode')) siteClass = 'leetcode';
 
+            // Status Check
+            const now = new Date();
+            const startTime = new Date(c.start_time).getTime();
+            const endTime = startTime + (Number(c.duration) * 1000);
+            const isLive = now.getTime() >= startTime && now.getTime() < endTime;
+
             return `
             <div class="competition-card fade-in-section">
                 <div class="comp-date" style="text-align:center; min-width:80px;">
@@ -210,13 +216,21 @@ async function renderCompetitions() {
                     <div style="font-size:0.8rem; text-transform:uppercase; opacity:0.7;">${dateStr.split(' ')[0]}</div>
                 </div>
                 <div class="comp-info">
-                    <h3 style="font-size:1rem; margin-bottom:0.25rem;">${c.name}</h3>
+                    <h3 style="font-size:1rem; margin-bottom:0.25rem;">
+                        ${c.name}
+                        ${isLive ? '<span class="comp-status live" style="margin-left:8px; font-size:0.7rem; vertical-align:middle;">LIVE</span>' : ''}
+                    </h3>
                     <p style="font-size:0.85rem; opacity:0.7;">
-                        ${dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} • 
+                        ${isLive 
+                            ? `<span style="color:#4CAF50; font-weight:bold;">Ends in ${((endTime - now.getTime())/3600000).toFixed(1)}h</span>` 
+                            : dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                        } • 
                         ${durationHrs}h • <span class="site-badge ${siteClass}">${c.site}</span>
                     </p>
                 </div>
-                <a href="${c.url}" target="_blank" class="btn-primary magnetic-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem; white-space:nowrap;">Register</a>
+                <a href="${c.url}" target="_blank" class="btn-primary magnetic-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem; white-space:nowrap;">
+                    ${isLive ? 'Compete' : 'Register'}
+                </a>
             </div>
             `;
         }).join('');
@@ -228,10 +242,8 @@ async function renderCompetitions() {
     };
 
     // 1. Instant Cache Load - DISABLED for Freshness
-    // let hasRendered = false;
-    // const cached = localStorage.getItem(CACHE_KEY);
-    // if (cached) { ... } 
-
+    // ALWAYS fetch fresh data. User specifically requested "real time" and "do not save old data".
+    
     // Always show scanning initially
     container.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.6; font-family:monospace;">Scanning live frequencies...</div>';
     let hasRendered = false;
@@ -276,18 +288,28 @@ async function renderCompetitions() {
         const now = new Date();
         const upcoming = combined.filter(c => {
             const start = new Date(c.start_time);
-            return start > now && c.status !== "CODING"; // Only future contests
+            const end = new Date(c.end_time);
+            
+            // Include Future contests OR Currently Running (Live) contests
+            // Note: kontests.net might not always provide end_time for all, but usually does.
+            // If end_time is missing, assume duration logic or just check start > now for safety if duration is unreliable,
+            // but we want LIVE. Duration is in seconds.
+            
+            if (!c.end_time && c.duration) {
+                 // Calculate end time if missing
+                 const startTime = new Date(c.start_time).getTime();
+                 const endTime = startTime + (Number(c.duration) * 1000);
+                 return startTime > now.getTime() || (startTime <= now.getTime() && endTime > now.getTime());
+            }
+
+            return start > now || (start <= now && end > now);
         })
             .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
             .slice(0, 5); // Top 5
 
         if (upcoming.length > 0) {
             displayContests(upcoming);
-            // Update Cache
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                timestamp: Date.now(),
-                data: upcoming
-            }));
+            // DO NOT SAVE to cache (User Request)
         } else if (!hasRendered) {
             // API worked but returned nothing? Use fallback
             displayContests(fallbackContests);
