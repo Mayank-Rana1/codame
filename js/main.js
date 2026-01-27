@@ -177,147 +177,206 @@ function renderMembers() {
 
 // --- 2. Live Competitions API (Robust Fallback) ---
 // --- 2. Live Competitions API (Optimized: Cache-First + Parallel Fetch) ---
-async function renderCompetitions() {
-    const container = document.getElementById('competitions-list');
-    if (!container) return;
+// --- Generators & Caching Logic ---
 
-    const CACHE_KEY = 'codame_contests_v1';
-    const CACHE_DURATION = 3600 * 1000; // 1 Hour
+const generateLeetCodeContests = () => {
+    const contests = [];
+    const now = new Date();
 
-    // Hardcoded Fallback Data (Instant Backup)
-    const fallbackContests = [
-        { name: "CodeChef Starters 170", site: "CodeChef", start_time: "2025-01-08T14:30:00.000Z", duration: 7200, url: "https://www.codechef.com/contests" },
-        { name: "Codeforces Round 994 (Div. 2)", site: "CodeForces", start_time: "2025-01-10T14:35:00.000Z", duration: 7200, url: "https://codeforces.com/contests" },
-        { name: "LeetCode Weekly Contest 432", site: "LeetCode", start_time: "2025-01-12T02:30:00.000Z", duration: 5400, url: "https://leetcode.com/contest/" },
-        { name: "Educational Codeforces Round 174", site: "CodeForces", start_time: "2025-01-18T14:35:00.000Z", duration: 7200, url: "https://codeforces.com/contests" }
-    ];
+    // 1. Weekly Contest: Every Sunday at 02:30 UTC
+    const nextWeekly = new Date(now);
+    nextWeekly.setUTCHours(2, 30, 0, 0);
+    // Find next Sunday (0)
+    const dayDiff = 7 - nextWeekly.getUTCDay();
+    nextWeekly.setDate(nextWeekly.getDate() + (dayDiff === 0 && nextWeekly < now ? 7 : dayDiff));
 
-    const displayContests = (data) => {
-        if (!data || data.length === 0) return;
-        container.innerHTML = data.map(c => {
-            const dateObj = new Date(c.start_time);
-            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            // Handle weird duration formats (seconds as string or number)
-            const durationHrs = (Number(c.duration) / 3600).toFixed(1);
-            let siteClass = 'codeforces';
-            if (c.site.toLowerCase().includes('codechef')) siteClass = 'codechef';
-            else if (c.site.toLowerCase().includes('leetcode')) siteClass = 'leetcode';
+    contests.push({
+        name: "LeetCode Weekly Contest",
+        site: "LeetCode",
+        start_time: nextWeekly.getTime(),
+        duration: 5400, // 1h 30m
+        url: "https://leetcode.com/contest/",
+        status: "BEFORE"
+    });
 
-            // Status Check
-            const now = new Date();
-            const startTime = new Date(c.start_time).getTime();
-            const endTime = startTime + (Number(c.duration) * 1000);
-            const isLive = now.getTime() >= startTime && now.getTime() < endTime;
+    // 2. Biweekly Contest: Every other Saturday at 14:30 UTC
+    // Base: Biweekly 100 was Mar 4, 2023. Period 14 days.
+    // We'll project next Saturday.
+    const nextBiweekly = new Date(now);
+    nextBiweekly.setUTCHours(14, 30, 0, 0);
+    const satDiff = (6 - nextBiweekly.getUTCDay() + 7) % 7;
+    nextBiweekly.setDate(nextBiweekly.getDate() + (satDiff === 0 && nextBiweekly < now ? 7 : satDiff));
 
-            return `
-            <div class="competition-card fade-in-section">
-                <div class="comp-date" style="text-align:center; min-width:80px;">
-                    <div style="font-weight:700; font-size:1.1rem; line-height:1;">${dateObj.getDate()}</div>
-                    <div style="font-size:0.8rem; text-transform:uppercase; opacity:0.7;">${dateStr.split(' ')[0]}</div>
-                </div>
-                <div class="comp-info">
-                    <h3 style="font-size:1rem; margin-bottom:0.25rem;">
-                        ${c.name}
-                        ${isLive ? '<span class="comp-status live" style="margin-left:8px; font-size:0.7rem; vertical-align:middle;">LIVE</span>' : ''}
-                    </h3>
-                    <p style="font-size:0.85rem; opacity:0.7;">
-                        ${isLive 
-                            ? `<span style="color:#4CAF50; font-weight:bold;">Ends in ${((endTime - now.getTime())/3600000).toFixed(1)}h</span>` 
-                            : dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                        } • 
-                        ${durationHrs}h • <span class="site-badge ${siteClass}">${c.site}</span>
-                    </p>
-                </div>
-                <a href="${c.url}" target="_blank" class="btn-primary magnetic-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem; white-space:nowrap;">
-                    ${isLive ? 'Compete' : 'Register'}
-                </a>
-            </div>
-            `;
-        }).join('');
+    contests.push({
+        name: "LeetCode Biweekly Estimate",
+        site: "LeetCode",
+        start_time: nextBiweekly.getTime(),
+        duration: 5400,
+        url: "https://leetcode.com/contest/",
+        status: "BEFORE"
+    });
 
-        // Re-attach observer for fade effects
-        if (globalObserver) {
-            container.querySelectorAll('.competition-card').forEach(el => globalObserver.observe(el));
-        }
-    };
+    return contests;
+};
 
-    // 1. Instant Cache Load - DISABLED for Freshness
-    // ALWAYS fetch fresh data. User specifically requested "real time" and "do not save old data".
-    
-    // Always show scanning initially
-    container.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.6; font-family:monospace;">Scanning live frequencies...</div>';
-    let hasRendered = false;
+const generateCodeChefContests = () => {
+    const contests = [];
+    const now = new Date();
 
-    // 2. Parallel Fast Fetch (Background Update)
+    // Starters: Every Wednesday at 14:30 UTC (8:00 PM IST)
+    const nextStarters = new Date(now);
+    nextStarters.setUTCHours(14, 30, 0, 0);
+    const wedDiff = (3 - nextStarters.getUTCDay() + 7) % 7;
+    nextStarters.setDate(nextStarters.getDate() + (wedDiff === 0 && nextStarters < now ? 7 : wedDiff));
+
+    contests.push({
+        name: "CodeChef Starters",
+        site: "CodeChef",
+        start_time: nextStarters.getTime(),
+        duration: 7200, // 2h
+        url: "https://www.codechef.com/contests",
+        status: "BEFORE"
+    });
+
+    return contests;
+};
+
+async function fetchCodeforcesCached() {
+    const CACHE_KEY = 'codame_cf_cache_daily';
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 Hours
+
+    const now = Date.now();
+    const cached = localStorage.getItem(CACHE_KEY);
+
+    // 1. Try Cache
+    if (cached) {
+        try {
+            const { timestamp, data } = JSON.parse(cached);
+            if (now - timestamp < CACHE_DURATION) {
+                console.log("Using Cached Codeforces Data");
+                return data;
+            }
+        } catch (e) { localStorage.removeItem(CACHE_KEY); }
+    }
+
+    // 2. Fetch Fresh
+    console.log("Fetching Fresh Codeforces Data...");
     try {
-        const timeout = 6000; // 6s timeout
+        const timeout = 6000;
         const fetchWithTimeout = (url) => Promise.race([
             fetch(url),
             new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
         ]);
 
-        // Fetch specifically what we need (Faster than /all)
-        const [cfRes, ccRes, lcRes] = await Promise.allSettled([
-            fetchWithTimeout('https://kontests.net/api/v1/codeforces'),
-            fetchWithTimeout('https://kontests.net/api/v1/code_chef'),
-            fetchWithTimeout('https://kontests.net/api/v1/leet_code')
-        ]);
+        const response = await fetchWithTimeout('https://codeforces.com/api/contest.list?gym=false');
+        if (!response.ok) throw new Error('API Failed');
+        const json = await response.json();
 
-        let combined = [];
+        if (json.status === 'OK') {
+            const cfContests = json.result
+                .filter(c => c.phase === 'BEFORE' || c.phase === 'CODING')
+                .map(c => ({
+                    name: c.name,
+                    site: 'CodeForces',
+                    start_time: c.startTimeSeconds * 1000,
+                    duration: c.durationSeconds,
+                    url: `https://codeforces.com/contest/${c.id}`,
+                    status: c.phase === 'CODING' ? 'CODING' : 'BEFORE'
+                }));
 
-        // Process Codeforces
-        if (cfRes.status === 'fulfilled' && cfRes.value.ok) {
-            const data = await cfRes.value.json();
-            // Inject site name
-            combined.push(...data.map(c => ({ ...c, site: 'CodeForces' })));
+            // Save to Cache
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                timestamp: now,
+                data: cfContests
+            }));
+
+            return cfContests;
         }
+    } catch (e) {
+        console.warn("CF Fetch Failed:", e);
+        return []; // Fail gracefully
+    }
+}
 
-        // Process CodeChef
-        if (ccRes.status === 'fulfilled' && ccRes.value.ok) {
-            const data = await ccRes.value.json();
-            combined.push(...data.map(c => ({ ...c, site: 'CodeChef' })));
-        }
+async function renderCompetitions() {
+    const container = document.getElementById('competitions-list');
+    if (!container) return;
 
-        // Process LeetCode
-        if (lcRes.status === 'fulfilled' && lcRes.value.ok) {
-            const data = await lcRes.value.json();
-            combined.push(...data.map(c => ({ ...c, site: 'LeetCode' })));
-        }
+    // Show lightweight scanner initially
+    container.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.6; font-family:monospace;">Scanning live frequencies...</div>';
 
-        // Filter & Sort
+    try {
+        const combined = [];
+
+        // 1. Get Codeforces (Cached or Fresh)
+        const cfData = await fetchCodeforcesCached();
+        if (cfData) combined.push(...cfData.slice(0, 3)); // Top 3 CF
+
+        // 2. Generate LeetCode & CodeChef (Always Fresh)
+        combined.push(...generateLeetCodeContests()); // 2 LC
+        combined.push(...generateCodeChefContests()); // 1 CC
+
+        // 3. Sort & Render
         const now = new Date();
-        const upcoming = combined.filter(c => {
-            const start = new Date(c.start_time);
-            const end = new Date(c.end_time);
-            
-            // Include Future contests OR Currently Running (Live) contests
-            // Note: kontests.net might not always provide end_time for all, but usually does.
-            // If end_time is missing, assume duration logic or just check start > now for safety if duration is unreliable,
-            // but we want LIVE. Duration is in seconds.
-            
-            if (!c.end_time && c.duration) {
-                 // Calculate end time if missing
-                 const startTime = new Date(c.start_time).getTime();
-                 const endTime = startTime + (Number(c.duration) * 1000);
-                 return startTime > now.getTime() || (startTime <= now.getTime() && endTime > now.getTime());
-            }
+        const valid = combined.filter(c => {
+            const end = c.start_time + (c.duration * 1000);
+            return end > now.getTime();
+        });
 
-            return start > now || (start <= now && end > now);
-        })
-            .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
-            .slice(0, 5); // Top 5
+        const upcoming = valid
+            .sort((a, b) => a.start_time - b.start_time)
+            .slice(0, 8); // Top 8
 
         if (upcoming.length > 0) {
-            displayContests(upcoming);
-            // DO NOT SAVE to cache (User Request)
-        } else if (!hasRendered) {
-            // API worked but returned nothing? Use fallback
-            displayContests(fallbackContests);
+            container.innerHTML = upcoming.map(c => {
+                const dateObj = new Date(c.start_time);
+                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const durationHrs = (Number(c.duration) / 3600).toFixed(1);
+                let siteClass = 'codeforces';
+                if (c.site.toLowerCase().includes('codechef')) siteClass = 'codechef';
+                else if (c.site.toLowerCase().includes('leetcode')) siteClass = 'leetcode';
+
+                const startTime = c.start_time;
+                const endTime = startTime + (c.duration * 1000);
+                const isLive = now.getTime() >= startTime && now.getTime() < endTime;
+
+                return `
+                <div class="competition-card fade-in-section">
+                    <div class="comp-date" style="text-align:center; min-width:80px;">
+                        <div style="font-weight:700; font-size:1.1rem; line-height:1;">${dateObj.getDate()}</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; opacity:0.7;">${dateStr.split(' ')[0]}</div>
+                    </div>
+                    <div class="comp-info">
+                        <h3 style="font-size:1rem; margin-bottom:0.25rem;">
+                            ${c.name}
+                            ${isLive ? '<span class="comp-status live" style="margin-left:8px; font-size:0.7rem; vertical-align:middle;">LIVE</span>' : ''}
+                        </h3>
+                        <p style="font-size:0.85rem; opacity:0.7;">
+                             ${isLive
+                        ? `<span style="color:#4CAF50; font-weight:bold;">Ends in ${((endTime - now.getTime()) / 3600000).toFixed(1)}h</span>`
+                        : dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                    } • 
+                            ${durationHrs}h • <span class="site-badge ${siteClass}">${c.site}</span>
+                        </p>
+                    </div>
+                    <a href="${c.url}" target="_blank" class="btn-primary magnetic-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem; white-space:nowrap;">
+                        ${isLive ? 'Compete' : 'Register'}
+                    </a>
+                </div>
+                `;
+            }).join('');
+
+            if (globalObserver) {
+                container.querySelectorAll('.competition-card').forEach(el => globalObserver.observe(el));
+            }
+
+        } else {
+            container.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.6; font-family:monospace;">No upcoming contests found.</div>';
         }
 
     } catch (e) {
-        console.warn("Contest fetch failed:", e);
-        if (!hasRendered) displayContests(fallbackContests);
+        console.warn("Contest logic failed:", e);
+        container.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.6; font-family:monospace;">Contest Signal Lost.</div>';
     }
 }
 
