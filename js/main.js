@@ -42,14 +42,14 @@ let globalObserver;
 // --- Data Store ---
 const MEMBERS_DATA = [
     // Leads 2025-26
-    { "name": "Anushka Kathil", "role": "Coordinator", "team": "Leads", "link": "#" },
-    { "name": "Gaurang Gupta", "role": "Co-coordinator", "team": "Leads", "link": "#" },
-    { "name": "Anchal Jain", "role": "CP Lead", "team": "Leads", "link": "#" },
-    { "name": "Ambar Mittal", "role": "Events Lead", "team": "Leads", "link": "#" },
-    { "name": "Darsh Dave", "role": "Social Media Lead", "team": "Leads", "link": "#" },
-    { "name": "Aditya Singh", "role": "Design Lead", "team": "Leads", "link": "#" },
-    { "name": "Rhythm Duggal", "role": "Outreach Lead", "team": "Leads", "link": "#" },
-    { "name": "Ujjwal Sharma", "role": "Web Lead", "team": "Leads", "link": "#" },
+    { "name": "Anushka Kathil", "role": "Coordinator", "team": "Leads", "link": "https://www.linkedin.com/in/anushka-kathil-201850203" },
+    { "name": "Gaurang Gupta", "role": "Co-coordinator", "team": "Leads", "link": "https://www.linkedin.com/in/gaurang-gupta-6a6444283/" },
+    { "name": "Anchal Jain", "role": "CP Lead", "team": "Leads", "link": "https://www.linkedin.com/in/anchaljain06" },
+    { "name": "Ambar Mittal", "role": "Events Lead", "team": "Leads", "link": "https://www.linkedin.com/in/ambar-mittal-00a69a326" },
+    { "name": "Darsh Dave", "role": "Social Media Lead", "team": "Leads", "link": "https://www.linkedin.com/in/darsh-dave-120062291/" },
+    { "name": "Aditya Singh", "role": "Design Lead", "team": "Leads", "link": "https://www.linkedin.com/in/adityasingh0109/" },
+    { "name": "Rhythm Duggal", "role": "Outreach Lead", "team": "Leads", "link": "https://www.linkedin.com/in/rhythm-duggal-2bb27630a/" },
+    { "name": "Ujjwal Sharma", "role": "Dev Lead", "team": "Leads", "link": "https://www.linkedin.com/in/ujjwal-sharma-b16392222/" },
 
     // CP Team
     { "name": "Akshay Shrivastava", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/akshay-shrivastava-305a0122a" },
@@ -179,71 +179,108 @@ function renderMembers() {
 // --- 2. Live Competitions API (Optimized: Cache-First + Parallel Fetch) ---
 // --- Generators & Caching Logic ---
 
-const generateLeetCodeContests = () => {
-    const contests = [];
+// Use allorigins to bypass CORS for free APIs
+async function fetchWithProxy(url) {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error('Proxy Failed');
+    const json = await response.json();
+    return JSON.parse(json.contents);
+}
+
+// Generate fallback data if API fails to prevent empty sections
+const generateFallbackContests = () => {
+    // Keep a simple fallback just in case
+    const fallback = [];
     const now = new Date();
 
-    // 1. Weekly Contest: Every Sunday at 02:30 UTC
-    const nextWeekly = new Date(now);
-    nextWeekly.setUTCHours(2, 30, 0, 0);
-    // Find next Sunday (0)
-    const dayDiff = 7 - nextWeekly.getUTCDay();
-    nextWeekly.setDate(nextWeekly.getDate() + (dayDiff === 0 && nextWeekly < now ? 7 : dayDiff));
+    const nextCC = new Date(now);
+    nextCC.setUTCHours(14, 30, 0, 0);
+    const dayDiff = (3 - nextCC.getUTCDay() + 7) % 7;
+    nextCC.setDate(nextCC.getDate() + (dayDiff === 0 && nextCC < now ? 7 : dayDiff));
 
-    contests.push({
-        name: "LeetCode Weekly Contest",
-        site: "LeetCode",
-        start_time: nextWeekly.getTime(),
-        duration: 5400, // 1h 30m
-        url: "https://leetcode.com/contest/",
-        status: "BEFORE"
-    });
-
-    // 2. Biweekly Contest: Every other Saturday at 14:30 UTC
-    // Base: Biweekly 100 was Mar 4, 2023. Period 14 days.
-    // We'll project next Saturday.
-    const nextBiweekly = new Date(now);
-    nextBiweekly.setUTCHours(14, 30, 0, 0);
-    const satDiff = (6 - nextBiweekly.getUTCDay() + 7) % 7;
-    nextBiweekly.setDate(nextBiweekly.getDate() + (satDiff === 0 && nextBiweekly < now ? 7 : satDiff));
-
-    contests.push({
-        name: "LeetCode Biweekly Estimate",
-        site: "LeetCode",
-        start_time: nextBiweekly.getTime(),
-        duration: 5400,
-        url: "https://leetcode.com/contest/",
-        status: "BEFORE"
-    });
-
-    return contests;
-};
-
-const generateCodeChefContests = () => {
-    const contests = [];
-    const now = new Date();
-
-    // Starters: Every Wednesday at 14:30 UTC (8:00 PM IST)
-    const nextStarters = new Date(now);
-    nextStarters.setUTCHours(14, 30, 0, 0);
-    const wedDiff = (3 - nextStarters.getUTCDay() + 7) % 7;
-    nextStarters.setDate(nextStarters.getDate() + (wedDiff === 0 && nextStarters < now ? 7 : wedDiff));
-
-    contests.push({
+    fallback.push({
         name: "CodeChef Starters",
         site: "CodeChef",
-        start_time: nextStarters.getTime(),
-        duration: 7200, // 2h
+        start_time: nextCC.getTime(),
+        duration: 7200,
         url: "https://www.codechef.com/contests",
         status: "BEFORE"
     });
-
-    return contests;
+    return fallback;
 };
+
+// Fetch real CodeChef contests
+async function fetchCodeChefContests() {
+    try {
+        // CodeChef API might require a proxy due to CORS. Using allorigins raw as it does not get rate limited as easily as corsproxy for simple GETs.
+        const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.codechef.com/api/list/contests/all'));
+        if (!response.ok) throw new Error('CodeChef Proxy Failed');
+        const data = await response.json();
+
+        if (data && data.future_contests) {
+            return data.future_contests.map(c => ({
+                name: c.contest_name,
+                site: 'CodeChef',
+                start_time: new Date(c.contest_start_date_iso).getTime(),
+                duration: parseInt(c.contest_duration) * 60, // duration is in minutes
+                url: `https://www.codechef.com/${c.contest_code}`,
+                status: 'BEFORE'
+            }));
+        }
+        return generateFallbackContests();
+    } catch (e) {
+        console.warn("CodeChef API Failed, using fallback. Error:", e);
+        return generateFallbackContests();
+    }
+}
+
+// Fetch real LeetCode contests
+async function fetchLeetCodeContests() {
+    const query = `
+        query upcomingContests {
+            topTwoContests {
+                title
+                titleSlug
+                startTime
+                duration
+                cardImg
+            }
+        }
+    `;
+    try {
+        const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://leetcode.com/graphql'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: query })
+        });
+
+        if (!response.ok) throw new Error('LeetCode GraphQL proxy failed');
+        const jsonResponse = await response.json();
+        const lcData = jsonResponse.data?.topTwoContests || [];
+
+        if (lcData.length > 0) {
+            return lcData.map(c => ({
+                name: c.title,
+                site: 'LeetCode',
+                start_time: c.startTime * 1000,
+                duration: c.duration,
+                url: `https://leetcode.com/contest/${c.titleSlug}`,
+                status: 'BEFORE'
+            }));
+        }
+        return generateFallbackContests();
+    } catch (e) {
+        console.warn("LeetCode API wrapper Failed:", e);
+        return generateFallbackContests();
+    }
+}
 
 async function fetchCodeforcesCached() {
     const CACHE_KEY = 'codame_cf_cache_daily';
-    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 Hours
+    const CACHE_DURATION = 60 * 60 * 1000; // 1 Hour
 
     const now = Date.now();
     const cached = localStorage.getItem(CACHE_KEY);
@@ -308,13 +345,27 @@ async function renderCompetitions() {
     try {
         const combined = [];
 
-        // 1. Get Codeforces (Cached or Fresh)
-        const cfData = await fetchCodeforcesCached();
-        if (cfData) combined.push(...cfData.slice(0, 3)); // Top 3 CF
+        // 1. Fetch Codeforces, CodeChef, and LeetCode Concurrently
+        const [cfResult, ccResult, lcResult] = await Promise.allSettled([
+            fetchCodeforcesCached(),
+            fetchCodeChefContests(),
+            fetchLeetCodeContests()
+        ]);
 
-        // 2. Generate LeetCode & CodeChef (Always Fresh)
-        combined.push(...generateLeetCodeContests()); // 2 LC
-        combined.push(...generateCodeChefContests()); // 1 CC
+        if (cfResult.status === 'fulfilled' && cfResult.value) {
+            const sortedCF = cfResult.value.sort((a, b) => a.start_time - b.start_time);
+            combined.push(...sortedCF.slice(0, 5)); // Top 5 CF
+        }
+
+        if (ccResult.status === 'fulfilled' && ccResult.value) {
+            const sortedCC = ccResult.value.sort((a, b) => a.start_time - b.start_time);
+            combined.push(...sortedCC.slice(0, 3)); // Top 3 CC
+        }
+
+        if (lcResult.status === 'fulfilled' && lcResult.value) {
+            const sortedLC = lcResult.value.sort((a, b) => a.start_time - b.start_time);
+            combined.push(...sortedLC.slice(0, 3)); // Top 3 LC
+        }
 
         // 3. Sort & Render
         const now = new Date();
@@ -325,7 +376,7 @@ async function renderCompetitions() {
 
         const upcoming = valid
             .sort((a, b) => a.start_time - b.start_time)
-            .slice(0, 8); // Top 8
+            .slice(0, 10); // Top 10 combined upcoming
 
         if (upcoming.length > 0) {
             container.innerHTML = upcoming.map(c => {
