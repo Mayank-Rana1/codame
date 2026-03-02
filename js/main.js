@@ -52,24 +52,21 @@ const MEMBERS_DATA = [
     { "name": "Ujjwal Sharma", "role": "Dev Lead", "team": "Leads", "link": "https://www.linkedin.com/in/ujjwal-sharma-b16392222/" },
 
     // CP Team
-    { "name": "Akshay Shrivastava", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/akshay-shrivastava-305a0122a" },
-    { "name": "Priyanshu Jain", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/priyanshu-jain7427" },
-    { "name": "Menil Patel", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/menil-patel-631278321" },
-    { "name": "Mayank Rana", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/mayank-rana17" },
-    { "name": "Nikhil Kumar", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/nikhil-kumar-48431b325" },
-    { "name": "Anuj Shrivastava", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/anuj-shrivastava-899122325" },
-    { "name": "Pranav Patil", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/pranav-patil-745064310" },
-    { "name": "Keshav Garg", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/keshavgarg8605" },
-    { "name": "Mridu .", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/mridu-96119a328" },
-    { "name": "Hariom Gandhile", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/hariom-gandhile-a69848336" },
-    { "name": "Rafat Alam", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/rafatalam" },
-    { "name": "Prateek Sahu", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/prateek-sahu16" },
-    { "name": "Mohit Rai", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/mohit-rai-99323431a" },
-    { "name": "Prem Shaw", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/premshaw2311" },
-    { "name": "Rahul Kumar", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/rahul-kumar-a5b52a376" },
-    { "name": "Sumit Tiwari", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/sumit-tiwari1212" },
-    { "name": "Manoor Ansari", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/manoor-ansari" },
-    { "name": "Daksh Jain", "role": "CP Team", "team": "CP Wing", "link": "https://in.linkedin.com/in/daksh-jain23" },
+    { "name": "Akshay Shrivastava", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/akshay-shrivastava-305a0122a" },
+    { "name": "Priyanshu Jain", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/priyanshu-jain7427" },
+    { "name": "Menil Patel", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/menil-patel-631278321" },
+    { "name": "Mayank Rana", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/mayank-rana17" },
+    { "name": "Nikhil Kumar", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/nikhil-kumar-48431b325" },
+    { "name": "Anuj Shrivastava", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/anuj-shrivastava-899122325" },
+    { "name": "Pranav Patil", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/pranav-patil-745064310" },
+    { "name": "Keshav Garg", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/keshavgarg8605" },
+    { "name": "Mridu .", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/mridu-96119a328" },
+    { "name": "Hariom Gandhile", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/hariom-gandhile-a69848336" },
+    { "name": "Prateek Sahu", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/prateek-sahu16" },
+    { "name": "Mohit Rai", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/mohit-rai-99323431a" },
+    { "name": "Prem Shaw", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/premshaw2311" },
+    { "name": "Sumit Tiwari", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/sumit-tiwari1212" },
+    { "name": "Daksh Jain", "role": "CP Team", "team": "CP Wing", "link": "https://www.linkedin.com/in/daksh-jain23" },
 
     // Core Team
     { "name": "Aayush Yadav", "role": "Events Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/aayush-yadav-30527331a" },
@@ -80,7 +77,6 @@ const MEMBERS_DATA = [
     { "name": "Sanskriti Mishra", "role": "Outreach Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/sanskriti-mishra26" },
     { "name": "Vivek Jha", "role": "Outreach Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/vivek-jha-7b9788276" },
     { "name": "Aman Kumar", "role": "Outreach Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/aman-kumar1405" },
-    { "name": "Sarthak Patil", "role": "Development Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/sarthaknpatil" },
     { "name": "Girdhar Shukla", "role": "Development Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/girdhar-shukla-434a72322" },
     { "name": "Anik Aryan", "role": "Development Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/anikaryan" },
     { "name": "Yajur Chatnani", "role": "Social Media", "team": "Core Team", "link": "https://in.linkedin.com/in/yajurchatnani" },
@@ -88,6 +84,7 @@ const MEMBERS_DATA = [
     { "name": "Naman Chaddha", "role": "Content", "team": "Core Team", "link": "https://in.linkedin.com/in/naman-chaddha-120250345" },
     { "name": "Hardik Garg", "role": "Content", "team": "Core Team", "link": "https://in.linkedin.com/in/hardik-garg-156019314" },
     { "name": "Aman Sharma", "role": "Video Editing", "team": "Core Team", "link": "https://in.linkedin.com/in/aman-sharma-76084933a" },
+    { "name": "Aman Tekam", "role": "Video Editing", "team": "Core Team", "link": "https://www.linkedin.com/in/aman-tekam-42aba9327/" },
     { "name": "Karan Mishra", "role": "Video Editing", "team": "Core Team", "link": "https://in.linkedin.com/in/karan-mishra-59a075320" },
     { "name": "Tanishq Yadav", "role": "Design Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/tanishq-yadav-a79162313" },
     { "name": "Venkat Relangi", "role": "Design Executive", "team": "Core Team", "link": "https://in.linkedin.com/in/venkat-relangi-174587318" },
@@ -743,3 +740,4 @@ function initParallax() {
         }
     });
 }
+
