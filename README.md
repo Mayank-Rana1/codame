@@ -40,5 +40,3 @@ This project can be used for:
 | GitHub Pages | Hosting |
 
 ---
-
-## 📁 Project Structure
